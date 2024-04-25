@@ -9,6 +9,7 @@ import "../css/Login.css";
 export const Dashboard = () => {
   const [classData, setClassData] = useState([]);
   const [zoomSecret, setZoomsecret] = useState("");
+  const [platform, setPlatform] = useState("")
   const [runningAppname, setRunningAppname] = useState<string[]>([]);
   const [api, contextHolder] = notification.useNotification();
   const [isMeetingRunning, setIsMeetingRunning] = useState(false);
@@ -46,9 +47,9 @@ export const Dashboard = () => {
   };
 
   const checkBackgroundRunningApps = (item) => {
-    if (runningAppname.length === 0) {
+    if (platform === 'darwin' && runningAppname.length === 0) {
       openNotification({ isEmpty: true });
-    } else if (runningAppname.length > 5) {
+    } else if (platform === 'darwin' && runningAppname.length > 5) {
       openNotification({ isEmpty: false });
     } else {
       joinClass(item);
@@ -86,8 +87,8 @@ export const Dashboard = () => {
           sdkKey: response.data.sdk_key,
           meetingNumber: response.data.join_id,
           passWord: response.data.meeting_password,
-          userName: "Vicky Keshri",
-          userEmail: "saketh@edmingle.com",
+          userName: localStorage.getItem("user_name") || "",
+          userEmail: localStorage.getItem("user_email") || "",
           success: (success) => {
             setIsMeetingRunning(true);
           },
@@ -109,6 +110,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (
+      platform === 'darwin' &&
       isMeetingRunning &&
       (runningAppname.length > 5 || runningAppname.includes("screencaptureui"))
     ) {
@@ -117,6 +119,9 @@ export const Dashboard = () => {
   }, [isMeetingRunning, runningAppname]);
 
   useEffect(() => {
+    const os = (window as any).api.getOs();
+    setPlatform(os)
+    if(os === 'darwin') {
     const handleAppsUpdate = (data: any) => {
       const runningApps = data.split(",");
       setRunningAppname(runningApps);
@@ -130,6 +135,7 @@ export const Dashboard = () => {
     return () => {
       clearInterval(intervalId);
     };
+  }
   }, []);
 
   if (classData.length === 0) {
