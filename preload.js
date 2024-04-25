@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld("api", {
   getOs: () => os.platform(),
 
 
+
+  
   
   requestRunningApps: () => ipcRenderer.send("request-running-apps"),
   onRunningAppsUpdate: (callback) =>
